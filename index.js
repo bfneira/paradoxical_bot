@@ -1,15 +1,17 @@
-'use strict';
+const discord = require('discord.js');
+const ytdl = require('ytdl-core');
+const ready = require('./handlers/ready');
+const message = require('./handlers/message');
+const config = require('./settings/config.json');
+const utils = require('./global/utils');
+const bot = new discord.Client();
 
-var fs = require('fs');
-var path = require('path');
+require('./global/functions')(bot, utils, ytdl, config);
 
-exports.get = function(event, context, callback) {
-  var contents = fs.readFileSync(`public${path.sep}index.html`);
-  var result = {
-    statusCode: 200,
-    body: contents.toString(),
-    headers: {'content-type': 'text/html'}
-  };
+bot.commands = new discord.Collection();
+bot.aliases = new discord.Collection();
+bot.queue = new Map() // Music Queue
+bot.votes = new Map(); // Vote Skip
 
-  callback(null, result);
-};
+ready.ready(bot);
+message.message(bot, utils, config, discord);
